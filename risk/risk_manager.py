@@ -1,4 +1,5 @@
 from datetime import date
+import math
 import config
 from database.db_manager import get_recent_losses
 
@@ -22,6 +23,11 @@ class RiskManager:
             self._weekly_start = balance
 
     def check_risk(self, balance, equity):
+        if any(not isinstance(v, (int, float)) or not math.isfinite(v) for v in (balance, equity)) or balance <= 0:
+            return {"allowed": False, "violations": ["Invalid account balance or equity"],
+                    "warnings": [], "daily_drawdown": 100.0, "weekly_drawdown": 100.0,
+                    "consecutive_losses": 0, "daily_start": self._daily_start,
+                    "weekly_start": self._weekly_start}
         self.seed_balance(balance)
         self._reset_if_new_day(balance)
 
