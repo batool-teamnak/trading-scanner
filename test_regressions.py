@@ -38,3 +38,13 @@ class TradingTests(unittest.TestCase):
             self.assertFalse(risk.check_risk(balance,equity)['allowed'])
         self.assertIsNone(risk._daily_start)
         self.assertTrue(risk.check_risk(10000,10000)['allowed'])
+
+    def test_weekly_baseline_resets_on_new_week(self):
+        with patch('risk.risk_manager.date') as clock:
+            clock.today.return_value = datetime.date(2026,7,3)
+            risk = RiskManager()
+            risk.check_risk(10000,10000)
+            clock.today.return_value = datetime.date(2026,7,6)
+            status = risk.check_risk(12000,12000)
+        self.assertEqual(status['weekly_start'],12000)
+        self.assertEqual(status['weekly_drawdown'],0)

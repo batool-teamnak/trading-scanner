@@ -9,9 +9,14 @@ class RiskManager:
         self._daily_start = None
         self._weekly_start = None
         self._today = date.today()
+        self._week = self._today.isocalendar()[:2]
 
     def _reset_if_new_day(self, balance):
         today = date.today()
+        week = today.isocalendar()[:2]
+        if self._week != week:
+            self._weekly_start = balance
+            self._week = week
         if self._today != today:
             self._daily_start = balance
             self._today = today
