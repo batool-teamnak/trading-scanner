@@ -73,6 +73,9 @@ class RiskManager:
 
     def calculate_position_size(self, account_balance, entry, sl, pip_value=10.0, digits=5):
         """Return lot size based on MAX_RISK_PER_TRADE%."""
+        if any(not isinstance(v, (int, float)) or not math.isfinite(v) or v <= 0
+               for v in (account_balance, entry, sl, pip_value)) or entry == sl:
+            return 0.0
         risk_amount = account_balance * (config.MAX_RISK_PER_TRADE / 100)
         point = 0.00001 if digits == 5 else 0.001
         sl_pips = abs(entry - sl) / (point * 10)

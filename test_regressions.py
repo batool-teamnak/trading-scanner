@@ -48,3 +48,8 @@ class TradingTests(unittest.TestCase):
             status = risk.check_risk(12000,12000)
         self.assertEqual(status['weekly_start'],12000)
         self.assertEqual(status['weekly_drawdown'],0)
+
+    def test_invalid_lot_inputs_do_not_allocate_risk(self):
+        risk = RiskManager()
+        for balance,entry,stop,pip in ((10000,1.1,1.1,10),(float('nan'),1.1,1.0,10),(10000,1.1,1.0,0)):
+            self.assertEqual(risk.calculate_position_size(balance,entry,stop,pip),0)
