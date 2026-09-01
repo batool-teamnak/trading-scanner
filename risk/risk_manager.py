@@ -1,4 +1,5 @@
 from datetime import date
+from decimal import Decimal, ROUND_FLOOR
 import math
 import config
 from database.db_manager import get_recent_losses
@@ -77,10 +78,13 @@ class RiskManager:
             "weekly_start": self._weekly_start,
         }
 
-    def calculate_position_size(self, account_balance, entry, sl, pip_value=10.0, digits=5):
-        """Return lot size based on MAX_RISK_PER_TRADE%."""
+    def calculate_position_size(self, account_balance, entry, sl, pip_value=10.0, digits=5,
+                                volume_step=0.01, min_volume=0.01, max_volume=100.0):
+        """Return a broker-step-aligned lot size within MAX_RISK_PER_TRADE%."""
         if any(not isinstance(v, (int, float)) or not math.isfinite(v) or v <= 0
-               for v in (account_balance, entry, sl, pip_value)) or entry == sl:
+               for v in (account_balance, entry, sl, pip_value, volume_step, min_volume, max_volume)) or entry == sl:
+            return 0.0
+        if min_volume > max_volume:
             return 0.0
         risk_amount = account_balance * (config.MAX_RISK_PER_TRADE / 100)
         if isinstance(digits, bool) or digits not in (2, 3, 4, 5):
@@ -88,8 +92,12 @@ class RiskManager:
         point = 10 ** -digits
         pip_size = point * 10 if digits in (3, 5) else point
         sl_pips = abs(entry - sl) / pip_size
-        lot_size = risk_amount / (sl_pips * pip_value)
-        return max(0.0, math.floor(min(lot_size, 100.0) * 100 + 1e-12) / 100)
+        lot_size = min(risk_amount / (sl_pips * pip_value), max_volume)
+        step = Decimal(str(volume_step))
+        volume = (Decimal(str(lot_size)) / step).to_integral_value(rounding=ROUND_FLOOR) * step
+        if volume < Decimal(str(min_volume)):
+            return 0.0
+        return float(volume)
 
     def is_elite_trade_allowed(self, scoring, risk_status):
         """Elite trades require ELITE grade + no violations."""
