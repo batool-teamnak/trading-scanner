@@ -77,8 +77,11 @@ class RiskManager:
                for v in (account_balance, entry, sl, pip_value)) or entry == sl:
             return 0.0
         risk_amount = account_balance * (config.MAX_RISK_PER_TRADE / 100)
-        point = 0.00001 if digits == 5 else 0.001
-        sl_pips = abs(entry - sl) / (point * 10)
+        if isinstance(digits, bool) or digits not in (2, 3, 4, 5):
+            return 0.0
+        point = 10 ** -digits
+        pip_size = point * 10 if digits in (3, 5) else point
+        sl_pips = abs(entry - sl) / pip_size
         if sl_pips < 1:
             return 0.01
         lot_size = risk_amount / (sl_pips * pip_value)

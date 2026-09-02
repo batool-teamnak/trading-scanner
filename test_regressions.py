@@ -53,3 +53,10 @@ class TradingTests(unittest.TestCase):
         risk = RiskManager()
         for balance,entry,stop,pip in ((10000,1.1,1.1,10),(float('nan'),1.1,1.0,10),(10000,1.1,1.0,0)):
             self.assertEqual(risk.calculate_position_size(balance,entry,stop,pip),0)
+
+    def test_four_and_five_digit_sizing_agree(self):
+        risk = RiskManager()
+        self.assertEqual(risk.calculate_position_size(10000,1.1,1.09,digits=4),
+                         risk.calculate_position_size(10000,1.1,1.09,digits=5))
+        self.assertEqual(risk.calculate_position_size(10000,150,149,digits=2),
+                         risk.calculate_position_size(10000,150,149,digits=3))
