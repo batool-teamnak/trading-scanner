@@ -60,3 +60,9 @@ class TradingTests(unittest.TestCase):
                          risk.calculate_position_size(10000,1.1,1.09,digits=5))
         self.assertEqual(risk.calculate_position_size(10000,150,149,digits=2),
                          risk.calculate_position_size(10000,150,149,digits=3))
+
+    def test_lot_floor_never_exceeds_configured_risk(self):
+        risk = RiskManager()
+        lots = risk.calculate_position_size(1000,1.1,1.087,digits=5)
+        self.assertLessEqual(lots*130*10,1000*config.MAX_RISK_PER_TRADE/100)
+        self.assertEqual(risk.calculate_position_size(1,1.1,1.0),0)

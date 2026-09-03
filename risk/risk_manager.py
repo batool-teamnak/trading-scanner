@@ -82,10 +82,8 @@ class RiskManager:
         point = 10 ** -digits
         pip_size = point * 10 if digits in (3, 5) else point
         sl_pips = abs(entry - sl) / pip_size
-        if sl_pips < 1:
-            return 0.01
         lot_size = risk_amount / (sl_pips * pip_value)
-        return round(max(0.01, min(lot_size, 100.0)), 2)
+        return max(0.0, math.floor(min(lot_size, 100.0) * 100 + 1e-12) / 100)
 
     def is_elite_trade_allowed(self, scoring, risk_status):
         """Elite trades require ELITE grade + no violations."""
