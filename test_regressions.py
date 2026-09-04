@@ -66,3 +66,10 @@ class TradingTests(unittest.TestCase):
         lots = risk.calculate_position_size(1000,1.1,1.087,digits=5)
         self.assertLessEqual(lots*130*10,1000*config.MAX_RISK_PER_TRADE/100)
         self.assertEqual(risk.calculate_position_size(1,1.1,1.0),0)
+
+    def test_invalid_risk_configuration_fails_startup(self):
+        for value in (0,-1,float('nan'),101):
+            with patch.object(config,'MAX_RISK_PER_TRADE',value), self.assertRaises(ValueError):
+                RiskManager()
+        with patch.object(config,'MAX_CONSECUTIVE_LOSSES',0), self.assertRaises(ValueError):
+            RiskManager()

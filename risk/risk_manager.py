@@ -6,6 +6,12 @@ from database.db_manager import get_recent_losses
 
 class RiskManager:
     def __init__(self):
+        for name in ("MAX_RISK_PER_TRADE", "MAX_DAILY_DRAWDOWN", "MAX_WEEKLY_DRAWDOWN"):
+            value = getattr(config, name)
+            if not isinstance(value, (int, float)) or not math.isfinite(value) or not 0 < value <= 100:
+                raise ValueError(f"{name} must be positive and at most 100 percent")
+        if isinstance(config.MAX_CONSECUTIVE_LOSSES, bool) or not isinstance(config.MAX_CONSECUTIVE_LOSSES, int) or config.MAX_CONSECUTIVE_LOSSES <= 0:
+            raise ValueError("MAX_CONSECUTIVE_LOSSES must be a positive integer")
         self._daily_start = None
         self._weekly_start = None
         self._today = date.today()
