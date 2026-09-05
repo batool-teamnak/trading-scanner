@@ -95,6 +95,6 @@ class RiskManager:
         """Elite trades require ELITE grade + no violations."""
         return (
             scoring.get("grade") == "ELITE"
-            and risk_status.get("allowed")
+            and risk_status.get("allowed") is True
             and risk_status.get("daily_drawdown", 99) < config.MAX_DAILY_DRAWDOWN * 0.5
         )

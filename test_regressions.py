@@ -73,3 +73,9 @@ class TradingTests(unittest.TestCase):
                 RiskManager()
         with patch.object(config,'MAX_CONSECUTIVE_LOSSES',0), self.assertRaises(ValueError):
             RiskManager()
+
+    def test_elite_setup_requires_boolean_approval(self):
+        risk = RiskManager()
+        for approval in ('false','true',1,None):
+            self.assertFalse(risk.is_elite_trade_allowed({'grade':'ELITE'}, {'allowed':approval,'daily_drawdown':0}))
+        self.assertTrue(risk.is_elite_trade_allowed({'grade':'ELITE'}, {'allowed':True,'daily_drawdown':0}))
