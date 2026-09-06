@@ -171,7 +171,7 @@ def log_risk(balance, equity, risk_status):
 def get_recent_losses(n=5):
     conn = get_connection()
     c = conn.cursor()
-    c.execute("SELECT outcome FROM trades WHERE outcome IS NOT NULL ORDER BY closed_at DESC LIMIT ?", (n,))
+    c.execute("SELECT outcome FROM trades WHERE outcome IS NOT NULL ORDER BY closed_at DESC, id DESC LIMIT ?", (n,))
     rows = c.fetchall()
     conn.close()
     losses = []

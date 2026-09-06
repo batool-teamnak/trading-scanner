@@ -79,3 +79,12 @@ class TradingTests(unittest.TestCase):
         for approval in ('false','true',1,None):
             self.assertFalse(risk.is_elite_trade_allowed({'grade':'ELITE'}, {'allowed':approval,'daily_drawdown':0}))
         self.assertTrue(risk.is_elite_trade_allowed({'grade':'ELITE'}, {'allowed':True,'daily_drawdown':0}))
+
+    def test_latest_win_breaks_same_timestamp_loss_streak(self):
+        loss = db.log_trade('EURUSD','buy',1.1,1.0,1.2)
+        win = db.log_trade('EURUSD','buy',1.1,1.0,1.2)
+        db.close_trade(loss,1.0,'loss')
+        db.close_trade(win,1.2,'win')
+        with db.get_connection() as conn:
+            conn.execute("UPDATE trades SET closed_at='2026-07-01 12:00:00'")
+        self.assertEqual(db.get_recent_losses(),[])
