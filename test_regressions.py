@@ -88,3 +88,6 @@ class TradingTests(unittest.TestCase):
         with db.get_connection() as conn:
             conn.execute("UPDATE trades SET closed_at='2026-07-01 12:00:00'")
         self.assertEqual(db.get_recent_losses(),[])
+
+    def test_empty_daily_stats_are_numeric(self):
+        self.assertEqual(db.get_daily_stats(),{'total':0,'wins':0,'losses':0,'avg_rr':0})

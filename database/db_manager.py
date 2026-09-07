@@ -197,6 +197,8 @@ def get_daily_stats(target_date=None):
     row = dict(c.fetchone())
     conn.close()
     row["avg_rr"] = round(row["avg_rr"] or 0, 2)
+    row["wins"] = row["wins"] or 0
+    row["losses"] = row["losses"] or 0
     return row
 
 
