@@ -91,3 +91,11 @@ class TradingTests(unittest.TestCase):
 
     def test_empty_daily_stats_are_numeric(self):
         self.assertEqual(db.get_daily_stats(),{'total':0,'wins':0,'losses':0,'avg_rr':0})
+
+    def test_weekly_stats_date_window(self):
+        with db.get_connection() as conn:
+            for opened in ('2026-07-01','2026-07-02','2026-07-08','2026-07-09'):
+                conn.execute("INSERT INTO trades(symbol,opened_at,outcome) VALUES('EURUSD',?,'win')",(opened,))
+        with patch.object(db,'date') as clock:
+            clock.today.return_value = datetime.date(2026,7,8)
+            self.assertEqual(db.get_weekly_stats()['total'],2)

@@ -203,7 +203,7 @@ def get_daily_stats(target_date=None):
 
 
 def get_weekly_stats():
-    week_ago = (date.today() - timedelta(days=7)).isoformat()
+    week_ago = (date.today() - timedelta(days=6)).isoformat()
     conn = get_connection()
     c = conn.cursor()
     c.execute("""
@@ -211,11 +211,13 @@ def get_weekly_stats():
                SUM(CASE WHEN outcome='win' THEN 1 ELSE 0 END) as wins,
                SUM(CASE WHEN outcome='loss' THEN 1 ELSE 0 END) as losses,
                AVG(rr_achieved) as avg_rr
-        FROM trades WHERE DATE(opened_at) >= ?
-    """, (week_ago,))
+        FROM trades WHERE DATE(opened_at) BETWEEN ? AND ?
+    """, (week_ago, date.today().isoformat()))
     row = dict(c.fetchone())
     conn.close()
     row["avg_rr"] = round(row["avg_rr"] or 0, 2)
+    row["wins"] = row["wins"] or 0
+    row["losses"] = row["losses"] or 0
     return row
 
 
