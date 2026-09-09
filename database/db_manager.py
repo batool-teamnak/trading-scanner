@@ -128,15 +128,19 @@ def log_trade(symbol, direction, entry, sl, tp, grade=None, score=None, session=
 
 
 def close_trade(trade_id, exit_price, outcome, rr_achieved=None, notes=None):
+    if outcome not in ("win", "loss", "breakeven"):
+        raise ValueError("outcome must be win, loss or breakeven")
     conn = get_connection()
     c = conn.cursor()
     c.execute("""
         UPDATE trades
         SET exit_price=?, outcome=?, rr_achieved=?, notes=?, closed_at=CURRENT_TIMESTAMP
-        WHERE id=?
+        WHERE id=? AND closed_at IS NULL
     """, (exit_price, outcome, rr_achieved, notes, trade_id))
+    changed = c.rowcount == 1
     conn.commit()
     conn.close()
+    return changed
 
 
 def save_journal_entry(trade_id, followed_plan, outcome, moved_stop, better_entry, emotions, notes):

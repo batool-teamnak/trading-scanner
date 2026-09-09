@@ -99,3 +99,10 @@ class TradingTests(unittest.TestCase):
         with patch.object(db,'date') as clock:
             clock.today.return_value = datetime.date(2026,7,8)
             self.assertEqual(db.get_weekly_stats()['total'],2)
+
+    def test_repeated_trade_close_preserves_first_outcome(self):
+        tid = db.log_trade('EURUSD','buy',1.1,1.0,1.2)
+        self.assertTrue(db.close_trade(tid,1.2,'win'))
+        self.assertFalse(db.close_trade(tid,1.0,'loss'))
+        self.assertEqual(db.get_all_trades()[0]['outcome'],'win')
+        self.assertFalse(db.close_trade(999,1.0,'loss'))
