@@ -106,3 +106,13 @@ class TradingTests(unittest.TestCase):
         self.assertFalse(db.close_trade(tid,1.0,'loss'))
         self.assertEqual(db.get_all_trades()[0]['outcome'],'win')
         self.assertFalse(db.close_trade(999,1.0,'loss'))
+
+    def test_failed_setup_write_closes_database_connection(self):
+        connection = db.get_connection()
+        wrapped = MagicMock(wraps=connection)
+        with patch.object(db,'get_connection',return_value=wrapped):
+            with self.assertRaises(TypeError):
+                db.save_setup('EURUSD','M15',{'conditions':[object()]},{'score':4})
+        wrapped.close.assert_called_once()
+        with self.assertRaises(sqlite3.ProgrammingError):
+            connection.execute('SELECT 1')
