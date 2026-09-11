@@ -116,3 +116,8 @@ class TradingTests(unittest.TestCase):
         wrapped.close.assert_called_once()
         with self.assertRaises(sqlite3.ProgrammingError):
             connection.execute('SELECT 1')
+
+    def test_orphan_trade_reference_is_rejected(self):
+        with self.assertRaises(sqlite3.IntegrityError):
+            db.log_trade('EURUSD','buy',1.1,1.0,1.2,setup_id=999)
+        self.assertEqual(db.get_all_trades(),[])
