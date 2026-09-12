@@ -1,12 +1,15 @@
 import sqlite3
 from contextlib import closing
 import json
+from pathlib import Path
 from datetime import date, timedelta
 import config
 
 
 def get_connection():
-    conn = sqlite3.connect(config.DB_PATH)
+    if config.DB_PATH != ":memory:":
+        Path(config.DB_PATH).expanduser().parent.mkdir(parents=True, exist_ok=True)
+    conn = sqlite3.connect(str(Path(config.DB_PATH).expanduser()) if config.DB_PATH != ":memory:" else config.DB_PATH)
     conn.row_factory = sqlite3.Row
     conn.execute("PRAGMA foreign_keys = ON")
     return conn

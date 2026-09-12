@@ -121,3 +121,10 @@ class TradingTests(unittest.TestCase):
         with self.assertRaises(sqlite3.IntegrityError):
             db.log_trade('EURUSD','buy',1.1,1.0,1.2,setup_id=999)
         self.assertEqual(db.get_all_trades(),[])
+
+    def test_nested_database_path_initializes(self):
+        path = Path(self.temp.name)/'nested'/'scanner.db'
+        with patch.object(config,'DB_PATH',str(path)):
+            db.init_db()
+            self.assertEqual(db.get_all_trades(),[])
+        self.assertTrue(path.exists())
