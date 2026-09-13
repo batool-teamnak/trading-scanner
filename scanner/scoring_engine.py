@@ -32,7 +32,7 @@ def score_setup(analysis):
     breakdown = []
 
     bias = analysis.get("bias", "neutral")
-    if bias != "neutral":
+    if bias in ("bullish", "bearish"):
         score += 2
         breakdown.append(f"HTF Bias ({bias}): +2")
 

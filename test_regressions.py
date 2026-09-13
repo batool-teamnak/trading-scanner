@@ -128,3 +128,7 @@ class TradingTests(unittest.TestCase):
             db.init_db()
             self.assertEqual(db.get_all_trades(),[])
         self.assertTrue(path.exists())
+
+    def test_unknown_bias_gets_no_directional_points(self):
+        self.assertEqual(scoring.score_setup({'bias':None})['score'],0)
+        self.assertEqual(scoring.score_setup({'bias':'bullish'})['score'],2)
