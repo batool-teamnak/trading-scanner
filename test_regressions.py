@@ -132,3 +132,7 @@ class TradingTests(unittest.TestCase):
     def test_unknown_bias_gets_no_directional_points(self):
         self.assertEqual(scoring.score_setup({'bias':None})['score'],0)
         self.assertEqual(scoring.score_setup({'bias':'bullish'})['score'],2)
+
+    def test_unknown_fvg_fill_state_does_not_add_points(self):
+        self.assertEqual(scoring.score_setup({'fvgs':[{},None,{'filled':True}]})['score'],0)
+        self.assertEqual(scoring.score_setup({'fvgs':[{'filled':False}]})['score'],2)

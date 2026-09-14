@@ -44,7 +44,7 @@ def score_setup(analysis):
         score += 2
         breakdown.append("Liquidity Sweep: +2")
 
-    active_fvgs = [f for f in analysis.get("fvgs", []) if not f["filled"]]
+    active_fvgs = [f for f in (analysis.get("fvgs") or []) if isinstance(f, dict) and f.get("filled") is False]
     if active_fvgs:
         score += 2
         breakdown.append(f"Active FVG ({len(active_fvgs)}): +2")
