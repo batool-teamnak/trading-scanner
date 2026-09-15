@@ -136,3 +136,8 @@ class TradingTests(unittest.TestCase):
     def test_unknown_fvg_fill_state_does_not_add_points(self):
         self.assertEqual(scoring.score_setup({'fvgs':[{},None,{'filled':True}]})['score'],0)
         self.assertEqual(scoring.score_setup({'fvgs':[{'filled':False}]})['score'],2)
+
+    def test_invalid_reward_ratio_cannot_improve_grade(self):
+        for ratio in (None,'3',float('inf'),float('nan')):
+            self.assertEqual(scoring.score_setup({'levels':{'rr':ratio}})['score'],0)
+        self.assertEqual(scoring.score_setup({'levels':{'rr':2}})['score'],1)

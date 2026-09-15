@@ -1,4 +1,5 @@
 import config
+import math
 
 GRADE_EMOJI = {
     "ELITE": "💎",
@@ -63,7 +64,8 @@ def score_setup(analysis):
         breakdown.append(f"Active session ({session}): +1")
 
     levels = analysis.get("levels") or {}
-    if levels.get("rr", 0) >= 2:
+    rr = levels.get("rr", 0)
+    if isinstance(rr, (int, float)) and math.isfinite(rr) and rr >= 2:
         score += 1
         breakdown.append("RR >= 2: +1")
 
