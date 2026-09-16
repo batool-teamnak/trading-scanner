@@ -141,3 +141,11 @@ class TradingTests(unittest.TestCase):
         for ratio in (None,'3',float('inf'),float('nan')):
             self.assertEqual(scoring.score_setup({'levels':{'rr':ratio}})['score'],0)
         self.assertEqual(scoring.score_setup({'levels':{'rr':2}})['score'],1)
+
+    def test_empty_and_nonfinite_feeds_are_neutral(self):
+        valid = self.bars()
+        for invalid in (pd.DataFrame(),valid.assign(Close=float('nan'))):
+            result = analyzer.analyze_symbol(valid,valid,invalid,'EURUSD')
+            self.assertEqual(result['bias'],'neutral')
+            self.assertIsNone(result['levels'])
+        self.assertEqual(analyzer.detect_fvg(pd.DataFrame()),[])

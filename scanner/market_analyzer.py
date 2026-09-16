@@ -67,6 +67,8 @@ def detect_liquidity_sweep(df, swing_highs, swing_lows):
 def detect_fvg(df):
     """Fair Value Gap (3-candle imbalance): gap between candle[i-2] and candle[i]."""
     fvgs = []
+    if df.empty:
+        return fvgs
     for i in range(2, len(df)):
         c0 = df.iloc[i - 2]
         c2 = df.iloc[i]
@@ -228,6 +230,12 @@ def analyze_symbol(htf_df, mtf_df, ltf_df, symbol):
         "conditions": [],
     }
 
+    if any(df is None or df.empty or not {"Open", "High", "Low", "Close"} <= set(df.columns)
+           for df in (htf_df, mtf_df, ltf_df)):
+        return result
+    if any(not np.isfinite(df[["Open", "High", "Low", "Close"]].to_numpy(dtype=float)).all()
+           for df in (htf_df, mtf_df, ltf_df)):
+        return result
     bias = get_htf_bias(htf_df)
     result["bias"] = bias
     if bias == "neutral":
