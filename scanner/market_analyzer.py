@@ -95,12 +95,12 @@ def detect_fvg(df):
                 "filled": False,
             })
 
-    last_close = df["Close"].iloc[-1]
     for fvg in fvgs:
+        later = df.iloc[fvg["index"] + 1:]
         if fvg["type"] == "bullish_fvg":
-            fvg["filled"] = last_close < fvg["bottom"]
+            fvg["filled"] = bool((later["Low"] <= fvg["bottom"]).any())
         else:
-            fvg["filled"] = last_close > fvg["top"]
+            fvg["filled"] = bool((later["High"] >= fvg["top"]).any())
     return fvgs
 
 

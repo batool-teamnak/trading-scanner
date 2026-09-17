@@ -149,3 +149,10 @@ class TradingTests(unittest.TestCase):
             self.assertEqual(result['bias'],'neutral')
             self.assertIsNone(result['levels'])
         self.assertEqual(analyzer.detect_fvg(pd.DataFrame()),[])
+
+    def test_gap_remains_filled_after_recovery(self):
+        bars = pd.DataFrame({'Open':[10,11,14,10,14],'High':[11,12,15,12,15],
+                             'Low':[9,10,13,10,13],'Close':[10,11,14,11,14]})
+        gaps = analyzer.detect_fvg(bars)
+        initial = next(g for g in gaps if g['index']==2)
+        self.assertTrue(initial['filled'])
