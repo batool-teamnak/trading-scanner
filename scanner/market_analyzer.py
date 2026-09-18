@@ -186,22 +186,28 @@ def calculate_atr(df, period=14):
 
 
 def calculate_entry_levels(df, bias, swing_highs, swing_lows):
+    if df.empty or bias not in ("bullish", "bearish"):
+        return None
     last_close = df["Close"].iloc[-1]
     atr = calculate_atr(df)
     if np.isnan(atr) or atr == 0:
         atr = (df["High"].iloc[-1] - df["Low"].iloc[-1])
 
+    if not np.isfinite(atr) or atr <= 0 or not np.isfinite(last_close) or last_close <= 0:
+        return None
     if bias == "bullish":
         entry = last_close
         sl = (swing_lows[-1][1] - atr * 0.1) if swing_lows else (entry - atr)
-        risk = max(entry - sl, atr * 0.5)
+        sl = min(sl, entry - atr * 0.5)
+        risk = entry - sl
         tp1 = round(entry + risk * 2, 5)
         tp2 = round(entry + risk * 3, 5)
         sl = round(sl, 5)
     else:
         entry = last_close
         sl = (swing_highs[-1][1] + atr * 0.1) if swing_highs else (entry + atr)
-        risk = max(sl - entry, atr * 0.5)
+        sl = max(sl, entry + atr * 0.5)
+        risk = sl - entry
         tp1 = round(entry - risk * 2, 5)
         tp2 = round(entry - risk * 3, 5)
         sl = round(sl, 5)

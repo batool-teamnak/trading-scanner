@@ -156,3 +156,13 @@ class TradingTests(unittest.TestCase):
         gaps = analyzer.detect_fvg(bars)
         initial = next(g for g in gaps if g['index']==2)
         self.assertTrue(initial['filled'])
+
+    def test_stale_swing_levels_cannot_invert_stop_direction(self):
+        bars = self.bars()
+        for bias, highs, lows in (('bullish',[],[(1,150)]),('bearish',[(1,90)],[])):
+            levels = analyzer.calculate_entry_levels(bars,bias,highs,lows)
+            if bias=='bullish':
+                self.assertLess(levels['sl'],levels['entry'])
+            else:
+                self.assertGreater(levels['sl'],levels['entry'])
+            self.assertAlmostEqual(abs(levels['entry']-levels['sl']),levels['risk'],places=4)
