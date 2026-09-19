@@ -50,7 +50,10 @@ def fetch_calendar(force=False):
                 timeout=10,
             )
             r.raise_for_status()
-            _cache["events"] = r.json()
+            events = r.json()
+            if not isinstance(events, list) or any(not isinstance(event, dict) for event in events):
+                raise ValueError("calendar response must be a list of event objects")
+            _cache["events"] = events
             _cache["fetched_at"] = now
         except Exception as e:
             print(f"[NewsFilter] Calendar fetch failed: {e}")

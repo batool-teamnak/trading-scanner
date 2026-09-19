@@ -166,3 +166,12 @@ class TradingTests(unittest.TestCase):
             else:
                 self.assertGreater(levels['sl'],levels['entry'])
             self.assertAlmostEqual(abs(levels['entry']-levels['sl']),levels['risk'],places=4)
+
+    def test_bad_calendar_payload_preserves_valid_cache(self):
+        cached = [{'title':'CPI','date':'2026-07-01T12:00:00Z'}]
+        news._cache.update(events=cached,fetched_at=None)
+        response = MagicMock()
+        response.json.return_value = {'error':'upstream failed'}
+        with patch.object(news.requests,'get',return_value=response), contextlib.redirect_stdout(io.StringIO()):
+            self.assertEqual(news.fetch_calendar(force=True),cached)
+        self.assertIsNone(news._cache['fetched_at'])
