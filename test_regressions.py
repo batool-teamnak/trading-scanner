@@ -175,3 +175,9 @@ class TradingTests(unittest.TestCase):
         with patch.object(news.requests,'get',return_value=response), contextlib.redirect_stdout(io.StringIO()):
             self.assertEqual(news.fetch_calendar(force=True),cached)
         self.assertIsNone(news._cache['fetched_at'])
+
+    def test_empty_calendar_does_not_refetch_each_scan(self):
+        news._cache.update(events=[],fetched_at=datetime.datetime.now(datetime.timezone.utc))
+        with patch.object(news.requests,'get') as fetch:
+            self.assertEqual(news.fetch_calendar(),[])
+        fetch.assert_not_called()

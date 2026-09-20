@@ -41,7 +41,7 @@ def fetch_calendar(force=False):
     with _lock:
         now = datetime.now(timezone.utc)
         age = (now - _cache["fetched_at"]).total_seconds() if _cache["fetched_at"] else 9999
-        if not force and age < 3600 and _cache["events"]:
+        if not force and 0 <= age < 3600 and _cache["fetched_at"] is not None:
             return _cache["events"]
         try:
             r = requests.get(
