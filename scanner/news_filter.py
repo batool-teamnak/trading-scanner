@@ -99,6 +99,9 @@ def is_news_blackout(symbol: str):
 
     events = fetch_calendar()
     now = datetime.now(timezone.utc)
+    fetched = _cache["fetched_at"]
+    if fetched is None or (now - fetched).total_seconds() > 3600:
+        return True, "Economic calendar unavailable or stale"
     pre = config.NEWS_BLOCK_MINUTES_BEFORE
     post = config.NEWS_BLOCK_MINUTES_AFTER
 

@@ -181,3 +181,10 @@ class TradingTests(unittest.TestCase):
         with patch.object(news.requests,'get') as fetch:
             self.assertEqual(news.fetch_calendar(),[])
         fetch.assert_not_called()
+
+    def test_unavailable_calendar_blocks_news_sensitive_symbol(self):
+        news._cache.update(events=[],fetched_at=None)
+        with patch.object(news.requests,'get',side_effect=OSError('offline')), contextlib.redirect_stdout(io.StringIO()):
+            blocked, reason = news.is_news_blackout('EURUSD')
+        self.assertTrue(blocked)
+        self.assertIn('unavailable',reason)
