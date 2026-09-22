@@ -195,3 +195,14 @@ This tool is for **decision support only**. It does not place trades automatical
 
 MIT
 
+
+## Offline regression checks
+
+Run `python -m unittest -v test_regressions` without MT5 or Telegram credentials.
+The checks use temporary SQLite databases and mock calendar HTTP responses.
+Lot sizes are floored to 0.01 increments; insufficient risk budgets return zero.
+Verify broker pip values and supported lot increments before using suggested sizes.
+Weekly drawdown baselines reset on ISO weeks. Weekly database reports cover the
+latest seven calendar days, including today. Historically filled FVGs remain
+inactive. News-sensitive symbols are blocked when calendar data is unavailable
+or older than one hour while the news filter is enabled by the caller.
