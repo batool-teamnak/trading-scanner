@@ -188,3 +188,10 @@ class TradingTests(unittest.TestCase):
             blocked, reason = news.is_news_blackout('EURUSD')
         self.assertTrue(blocked)
         self.assertIn('unavailable',reason)
+
+    def test_inconsistent_candles_never_produce_entry_levels(self):
+        valid = self.bars()
+        for invalid in (valid.assign(High=1),valid.assign(Low=200),valid.assign(Close='bad')):
+            result = analyzer.analyze_symbol(valid,valid,invalid,'EURUSD')
+            self.assertEqual(result['bias'],'neutral')
+            self.assertIsNone(result['levels'])

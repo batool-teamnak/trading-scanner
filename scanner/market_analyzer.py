@@ -239,9 +239,16 @@ def analyze_symbol(htf_df, mtf_df, ltf_df, symbol):
     if any(df is None or df.empty or not {"Open", "High", "Low", "Close"} <= set(df.columns)
            for df in (htf_df, mtf_df, ltf_df)):
         return result
-    if any(not np.isfinite(df[["Open", "High", "Low", "Close"]].to_numpy(dtype=float)).all()
-           for df in (htf_df, mtf_df, ltf_df)):
-        return result
+    for df in (htf_df, mtf_df, ltf_df):
+        try:
+            values = df[["Open", "High", "Low", "Close"]].to_numpy(dtype=float)
+        except (TypeError, ValueError):
+            return result
+        if not np.isfinite(values).all() or (values <= 0).any():
+            return result
+        opens, highs, lows, closes = values.T
+        if (highs < np.maximum(opens, closes)).any() or (lows > np.minimum(opens, closes)).any() or (highs < lows).any():
+            return result
     bias = get_htf_bias(htf_df)
     result["bias"] = bias
     if bias == "neutral":
